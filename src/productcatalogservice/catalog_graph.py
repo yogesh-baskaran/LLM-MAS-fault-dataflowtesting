@@ -24,8 +24,7 @@ from langgraph.graph import StateGraph, START, END
 # ---------------------------------------------------------------------------
 CATALOG_PATH     = os.getenv("PRODUCT_CATALOG_JSON", "products.json")
 OLLAMA_BASE_URL  = os.getenv("OLLAMA_SERVICE_URL",   "http://ollama-service:11434")
-#OLLAMA_MODEL     = os.getenv("OLLAMA_MODEL",          "llama3")
-LLAMA_MODEL     = os.getenv("OLLAMA_MODEL",          "mistral")
+OLLAMA_MODEL    = os.getenv("OLLAMA_MODEL",          "mistral")
 
 # ---------------------------------------------------------------------------
 # 1. Load product catalogue once at startup

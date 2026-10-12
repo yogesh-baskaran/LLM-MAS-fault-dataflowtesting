@@ -32,7 +32,9 @@ build:
   - image: shoppingassistantservice
     context: src/shoppingassistantservice
   - image: shippingservice
-    context: src/shippingservice
+    context: src
+    docker:
+      dockerfile: shippingservice/Dockerfile
   - image: checkoutservice
     context: src/checkoutservice
   - image: paymentservice
