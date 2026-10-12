@@ -9,11 +9,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends gcc \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
+COPY shippingservice/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Generate protobuf files as root while we still can write
-COPY proto/demo.proto ./proto/
+COPY shippingservice/proto/demo.proto ./proto/
 RUN python -m grpc_tools.protoc \
     -I./proto \
     --python_out=. \
@@ -21,9 +21,11 @@ RUN python -m grpc_tools.protoc \
     ./proto/demo.proto
 
 # Copy application files
-COPY main.py .
-COPY orchestrator.py .
-COPY agents/ ./agents/
+COPY shippingservice/main.py shippingservice/orchestrator.py ./
+COPY shippingservice/repository.py shippingservice/database.py shippingservice/config.py shippingservice/fault_injection.py ./
+COPY shippingservice/agents/ ./agents/
+COPY shippingagent/app/ /shippingagent/app/
+COPY boundary_validation.py /boundary_validation.py
 
 # Create non-root user, fix ownership of everything in /app in one layer
 RUN groupadd -r appuser && useradd -r -g appuser appuser \

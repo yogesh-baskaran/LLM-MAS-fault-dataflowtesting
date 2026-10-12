@@ -1,0 +1,2 @@
+# Gradle's Unix launcher must retain Unix line endings on Windows checkouts.
+gradlew text eol=lf

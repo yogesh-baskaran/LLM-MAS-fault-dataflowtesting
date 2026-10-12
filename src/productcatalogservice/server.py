@@ -10,6 +10,7 @@ Key fixes vs the original:
 """
 
 import grpc
+from grpc_health.v1 import health, health_pb2, health_pb2_grpc
 import json
 import os
 import traceback
@@ -146,6 +147,9 @@ def serve():
     hipstershop_pb2_grpc.add_ProductCatalogServiceServicer_to_server(
         ProductCatalogService(), server
     )
+    health_service = health.HealthServicer()
+    health_pb2_grpc.add_HealthServicer_to_server(health_service, server)
+    health_service.set("", health_pb2.HealthCheckResponse.SERVING)
     server.add_insecure_port(f"[::]:{GRPC_PORT}")
     print(f"[server] gRPC server listening on port {GRPC_PORT}")
     server.start()
