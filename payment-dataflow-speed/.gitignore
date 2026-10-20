@@ -1,0 +1,14 @@
+.tools/
+reference/*.txt
+.venv/
+__pycache__/
+*.pyc
+runtime/
+results/
+images/
+cache/
+config.env
+token_log.txt
+**/bin/
+**/obj/
+

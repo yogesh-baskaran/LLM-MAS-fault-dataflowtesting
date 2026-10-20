@@ -1,0 +1,4 @@
+{
+ "python":[],"native_catalogs":["cart/catalog.json"],"event_files":["cart/events.jsonl"],
+ "exclusions":["In-memory cart fields checked by contracts, not heap-alias DU analysis", "JSON extraction and HTTP helper internals", "Test-only configurable gRPC host replaces hardcoded server startup"]
+}

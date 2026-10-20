@@ -1,0 +1,6 @@
+{
+  "python": [{"module":"app.agent","file":"src/currencyagent/app/agent.py","functions":["run"]}],
+  "native_catalogs": ["currency/catalog.json"],
+  "event_files": ["currency/events.jsonl"],
+  "exclusions": ["Production HTTP/LangGraph routing", "Currency callback internals except _carry", "Heap field DU relationships"]
+}

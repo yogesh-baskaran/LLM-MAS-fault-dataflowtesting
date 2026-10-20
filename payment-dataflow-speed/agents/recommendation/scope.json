@@ -1,0 +1,5 @@
+{
+  "python": [{"module":"app.agent","file":"src/recommendationagent/app/agent.py","functions":["_fetch","get_recommendations","explain_recommendations"]}],
+  "native_catalogs": [], "event_files": [],
+  "exclusions": ["Production LangGraph explanation/enrichment", "Random sampling library internals", "Catalog uses fixture products from repository JSON"]
+}
