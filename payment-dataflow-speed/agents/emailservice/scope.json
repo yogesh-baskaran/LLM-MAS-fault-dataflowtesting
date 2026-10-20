@@ -1,0 +1,9 @@
+{
+ "python":[
+  {"module":"app.agent","file":"src/emailserviceagent/app/agent.py","functions":["classify_email_type","build_fallback_subject","build_fallback_body","generate_email_content"]},
+  {"module":"app.grpc_client","file":"src/emailserviceagent/app/grpc_client.py","functions":["_build_order","send_confirmation_email"]},
+  {"module":"app.graph","file":"src/emailserviceagent/app/graph.py","functions":["run_agent_node","send_via_microservice_node"]}
+ ],
+ "native_catalogs":[],"event_files":[],
+ "exclusions":["No real SMTP/cloud email delivery: original DummyEmailService is used", "Generated content is not forwarded by the existing protobuf client; contract reports this gap"]
+}

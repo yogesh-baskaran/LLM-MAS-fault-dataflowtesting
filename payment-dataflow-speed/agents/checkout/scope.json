@@ -1,0 +1,4 @@
+{
+ "python":[],"native_catalogs":["checkout/catalog.json"],"event_files":["checkout/events.jsonl"],
+ "exclusions":["Catalog and shipping are declared deterministic fixture services", "Original order JSON substring extraction/normalization helpers", "Cross-function and whole-system DU paths", "Loop paths beyond the configured node-visit bound"]
+}

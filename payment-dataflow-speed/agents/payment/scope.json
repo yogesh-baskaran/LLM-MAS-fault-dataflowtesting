@@ -1,0 +1,8 @@
+{
+ "python":[
+  {"module":"app.repository","file":"src/paymentagent/app/repository.py","functions":["save_transaction"]},
+  {"module":"app.agent","file":"src/paymentagent/app/agent.py","functions":["run"]}
+ ],
+ "native_catalogs":["service/service-catalog.json"],"event_files":["service-events.jsonl"],
+ "exclusions":["Production LangGraph/HTTP entry", "Original local Python charge tool replaced by real gRPC bridge in test process"]
+}
