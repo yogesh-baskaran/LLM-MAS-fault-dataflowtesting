@@ -6,6 +6,7 @@ from pathlib import Path
 import re
 import shutil
 import subprocess
+import tempfile
 from dataflow.common import sha256
 
 
@@ -22,8 +23,17 @@ def adapt_checkout_startup(text):
 def prepare(root,repo):
     base=root/'runtime/native';base.mkdir(parents=True,exist_ok=True)
     def command(image,arguments,cwd):
-        subprocess.run(['singularity','exec','--bind',f'{root}:{root}','--pwd',str(cwd),
-                        str(root/'images'/image),*map(str,arguments)],check=True)
+        invocation=['singularity','exec','--bind',f'{root}:{root}','--pwd',str(cwd)]
+        if image == 'dotnet.sif':
+            # Named mutexes need a writable, user-owned runtime directory.
+            # Keep it node-local; scratch/NFS and inaccessible container homes
+            # can fail during NuGet first-run migration.
+            with tempfile.TemporaryDirectory(prefix='df-dotnet-',dir='/tmp') as local_runtime:
+                subprocess.run([*invocation,'--bind',f'{local_runtime}:/df-dotnet-runtime',
+                                '--env','XDG_RUNTIME_DIR=/df-dotnet-runtime,TMPDIR=/df-dotnet-runtime,TMP=/df-dotnet-runtime,TEMP=/df-dotnet-runtime',
+                                str(root/'images'/image),*map(str,arguments)],check=True)
+        else:
+            subprocess.run([*invocation,str(root/'images'/image),*map(str,arguments)],check=True)
     compiler=root/'runtime/csharp-compiler'
     shutil.copytree(root/'instrumentation/csharp',compiler,dirs_exist_ok=True)
     command('dotnet.sif',['dotnet','build','Instrument.csproj','-c','Release','-o',str(compiler/'out')],compiler)

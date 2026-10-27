@@ -29,7 +29,7 @@ cp -R "$DF_REPO/src/paymentservice/proto" runtime/payment-source/
 export SINGULARITYENV_npm_config_cache="$DF_ROOT/cache/npm"
 singularity exec --bind "$DF_ROOT:$DF_ROOT" --pwd "$DF_ROOT/runtime/payment-source" images/node.sif npm ci --ignore-scripts
 singularity exec --bind "$DF_ROOT:$DF_ROOT" --pwd "$DF_ROOT" images/node.sif npm install --ignore-scripts
-singularity exec --bind "$DF_ROOT:$DF_ROOT","$DF_REPO:$DF_REPO:ro" --pwd "$DF_ROOT" images/node.sif node tests/test-service.cjs "$DF_REPO"
+singularity exec --bind "$DF_ROOT:$DF_ROOT:rw","$DF_REPO/src:$DF_REPO/src:ro" --pwd "$DF_ROOT" images/node.sif node tests/test-service.cjs "$DF_REPO"
 sha256sum images/*.sif > runtime/container-sha256.txt
 
 # Pull model inside an allocation. No GPU inference or payment tests in setup.
