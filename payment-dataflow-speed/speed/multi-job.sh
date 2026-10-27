@@ -39,7 +39,7 @@ nvidia-smi > "$DF_JOB_RUNTIME/gpu-details.txt"
 cp runtime/container-sha256.txt runtime/python-environment.txt "$DF_JOB_RUNTIME/"
 cmp "$DF_REPO/src/paymentservice/package.json" "$DF_PAYMENT_SOURCE/package.json" || { echo 'Service dependencies changed; rerun setup.sh.' >&2; exit 2; }
 cmp "$DF_REPO/src/paymentservice/proto/demo.proto" "$DF_PAYMENT_SOURCE/proto/demo.proto" || { echo 'Service proto changed; rerun setup.sh.' >&2; exit 2; }
-singularity exec --bind "$DF_ROOT:$DF_ROOT","$DF_REPO:$DF_REPO:ro" --pwd "$DF_ROOT" images/node.sif \
+singularity exec --bind "$DF_ROOT:$DF_ROOT:rw","$DF_REPO/src:$DF_REPO/src:ro" --pwd "$DF_ROOT" images/node.sif \
   node service/instrument.cjs "$DF_REPO/src/paymentservice/charge.js" "$DF_JOB_RUNTIME/service"
 
 DF_OWNED_PIDS=()
