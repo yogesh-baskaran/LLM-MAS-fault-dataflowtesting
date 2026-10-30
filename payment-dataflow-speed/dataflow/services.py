@@ -69,6 +69,13 @@ def main():
                 if product['id']==request.id:return pb.Product(**product)
             context.abort(grpc.StatusCode.NOT_FOUND,'Unknown fixture product')
         def SearchProducts(self,request,context):return pb.SearchProductsResponse(results=[pb.Product(**product) for product in products if request.query.lower() in product['name'].lower()])
+    class CheckoutPaymentFixture(rpc.PaymentServiceServicer):
+        # Deliberately no card/amount validation or transaction persistence.
+        # Used only by checkout; payment's own suite retains the original service.
+        def Charge(self,request,context):
+            test=dict(context.invocation_metadata()).get('x-dataflow-test-id')
+            if not test and args.active_test.exists():test=args.active_test.read_text().strip()
+            return pb.ChargeResponse(transaction_id='CHECKOUT-FIXTURE-'+(test or 'setup'))
     class Shipping(rpc.ShippingServiceServicer):
         def GetQuote(self,request,context):return pb.GetQuoteResponse(cost_usd=pb.Money(currency_code='USD',units=5,nanos=0))
         def ShipOrder(self,request,context):return pb.ShipOrderResponse(tracking_id='TEST-TRACK-001')
@@ -82,6 +89,8 @@ def main():
                                    (args.email_port,rpc.add_EmailServiceServicer_to_server,namespace['DummyEmailService']()),
                                    (args.recommendation_port,rpc.add_RecommendationServiceServicer_to_server,namespace['RecommendationService']())]:
         server=grpc.server(futures.ThreadPoolExecutor(max_workers=4),interceptors=[evidence]);register(service,server)
+        if port==args.catalog_port:
+            rpc.add_PaymentServiceServicer_to_server(CheckoutPaymentFixture(),server)
         if not server.add_insecure_port(f'127.0.0.1:{port}'):raise RuntimeError('Cannot bind test service port '+str(port))
         server.start();servers.append(server)
     print('Original demo handlers and declared catalog/shipping fixtures ready',flush=True);threading.Event().wait()

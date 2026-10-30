@@ -54,6 +54,33 @@ class ExtendedCoverageTests(unittest.TestCase):
 
 
 class SuiteTests(unittest.TestCase):
+    def test_checkout_cases_exclude_card_validation(self):
+        from agents.checkout.cases import baseline_cases,SCHEMA
+        self.assertNotIn('card_profile',SCHEMA['properties'])
+        for case in baseline_cases():
+            validate(case['input'],SCHEMA)
+            self.assertNotIn('expired',case['id'])
+
+    def test_checkout_success_needs_no_payment_evidence(self):
+        from agents.checkout.contracts import validate as checkout_validate
+        order=types.SimpleNamespace(order_id='O',items=[types.SimpleNamespace(item=types.SimpleNamespace(product_id='P',quantity=2))],
+                                    shipping_tracking_id='TEST-TRACK-001',shipping_address=types.SimpleNamespace(city='Montreal'))
+        tools=[{'data':{'tool':name}} for name in ['get_cart','empty_cart']]
+        checks=checkout_validate({'currency':'USD'},types.SimpleNamespace(order=order),{'P':2},{},{},
+                                 [{'method':'/hipstershop.EmailService/SendOrderConfirmation'}],tools,[{'user_id':'U'}])
+        self.assertTrue(all(c['valid'] for c in checks),checks)
+        self.assertFalse(any('payment' in c['name'] for c in checks))
+        checks=checkout_validate({'currency':'USD'},types.SimpleNamespace(order=order),{'P':2},{},{},[],[],[{}])
+        self.assertFalse(next(c for c in checks if c['name']=='native_checkout_used_tools')['valid'])
+
+    def test_checkout_empty_rejection_has_no_persisted_order(self):
+        from agents.checkout.contracts import validate as checkout_validate
+        tools=[{'data':{'tool':'get_cart'}}]
+        checks=checkout_validate({},None,{}, {},{},[],tools,[])
+        self.assertTrue(all(c['valid'] for c in checks),checks)
+        checks=checkout_validate({},None,{'P':1},{},{},[],tools,[])
+        self.assertFalse(next(c for c in checks if c['name']=='invalid_order_rejected')['valid'])
+
     def test_baseline_cases_validate_for_all_new_agents(self):
         for name in AGENTS[1:]:
             definition=importlib.import_module('agents.'+name+'.cases')
