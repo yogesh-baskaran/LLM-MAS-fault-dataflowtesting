@@ -1,4 +1,18 @@
 {
- "python":[],"native_catalogs":["checkout/catalog.json"],"event_files":["checkout/events.jsonl"],
- "exclusions":["Catalog and shipping are declared deterministic fixture services", "Original order JSON substring extraction/normalization helpers", "Cross-function and whole-system DU paths", "Loop paths beyond the configured node-visit bound"]
+  "python": [],
+  "native_catalogs": [
+    "checkout/catalog.json"
+  ],
+  "event_files": [
+    "checkout/events.jsonl"
+  ],
+  "exclusions": [
+    "Catalog and shipping are declared deterministic fixture services",
+    "Original order JSON substring extraction/normalization helpers",
+    "Cross-function and whole-system DU paths",
+    "Loop paths beyond the configured node-visit bound",
+    "PaymentAgent and original PaymentService execution: checkout receives a deterministic payment-success fixture",
+    "Card validity, payment amount validation and payment persistence",
+    "Expired-card scenarios; payment failures and inter-agent payment verification"
+  ]
 }

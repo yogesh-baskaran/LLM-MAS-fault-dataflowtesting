@@ -62,7 +62,7 @@ bash speed/job.sh all
 ```
 
 No `submit.sh` is needed inside `salloc`. The existing `bash speed/job.sh` defaults to payment,
-or to `DF_AGENTS` if you set that in `config.env`. Default additional ports are 50062–50068;
+or to `DF_AGENTS` if you set that in `config.env`. Default additional ports are 50062Ã¢â‚¬â€œ50068;
 original payment, MongoDB and Ollama ports are retained.
 
 Start with one generated round and a small number of generated tests. A combined run makes many
@@ -78,11 +78,11 @@ The inner `srun` uses `--overlap` so it can reuse an allocation entered through 
 
 | Suite | Original execution under test | Measured binding-level scope |
 | --- | --- | --- |
-| Payment | Existing PaymentAgent → observed real PaymentService RPC → real MongoDB | Existing Python run/save and JavaScript charge scope |
-| Currency | Existing CurrencyAgent → original currency algorithms in test RPC host | `CurrencyAgent.run`, JavaScript `_carry` |
-| Emailservice | Existing generation/send LangGraph with live LLM → original DummyEmailService | Generation helpers, graph nodes, client order builder and send method |
-| Recommendation | Existing recommendation agent → original RecommendationService handler | `_fetch`, get/explain agent methods; production enrichment graph excluded |
-| Cart | Existing C# agent and gRPC methods → live model for merge operations | Add/get/clear/merge agent methods and gRPC handlers |
+| Payment | Existing PaymentAgent Ã¢â€ â€™ observed real PaymentService RPC Ã¢â€ â€™ real MongoDB | Existing Python run/save and JavaScript charge scope |
+| Currency | Existing CurrencyAgent Ã¢â€ â€™ original currency algorithms in test RPC host | `CurrencyAgent.run`, JavaScript `_carry` |
+| Emailservice | Existing generation/send LangGraph with live LLM Ã¢â€ â€™ original DummyEmailService | Generation helpers, graph nodes, client order builder and send method |
+| Recommendation | Existing recommendation agent Ã¢â€ â€™ original RecommendationService handler | `_fetch`, get/explain agent methods; production enrichment graph excluded |
+| Cart | Existing C# agent and gRPC methods Ã¢â€ â€™ live model for merge operations | Add/get/clear/merge agent methods and gRPC handlers |
 | Checkout | Existing Go ReAct loop, tools, order parser and persistence wrapper | `PlaceOrder` agent/server methods, eight tool `Execute` methods, argument/order parsing |
 
 Cart uses the source tree selected by its Docker build: `src/cart-agent/src/`. Its in-memory cart
@@ -95,7 +95,8 @@ only startup/correlation/instrumentation: a test listener, a mandatory local Mon
 RPC correlation interceptor and trace events. Its hardcoded database name remains safe inside
 the dedicated job MongoDB instance. Its original persistence wrapper executes.
 
-Checkout calls original cart, payment, currency and demo-email implementations in isolated hosts.
+Checkout calls original cart, currency and demo-email implementations in isolated hosts.
+Payment is replaced by the declared checkout-only success fixture; payment validation is excluded.
 **Catalog and shipping are deterministic fixture services**, using repository catalog products and a
 fixed USD 5 quote/tracking ID. These fixture boundaries are reported; this is checkout agent-level
 testing, not full-system dataflow coverage. Recommendation's catalog dependency uses that fixture
@@ -187,3 +188,23 @@ Implementation references: [Go AST](https://pkg.go.dev/go/ast),
 [Roslyn syntax transformation](https://learn.microsoft.com/en-us/dotnet/csharp/roslyn-sdk/get-started/syntax-transformation),
 [SLURM srun overlap](https://slurm.schedmd.com/srun.html#OPT_overlap).
 
+
+## Checkout operations without payment validation
+
+The checkout suite now routes `charge_card` to a deterministic success fixture hosted
+on the catalog fixture port. It does not call PaymentAgent or the original PaymentService.
+The fixture returns a clearly prefixed transaction ID and performs no charge, card validation
+or payment persistence. Payment's independent suite continues to use the original service.
+Expired-card generation and payment-count/amount/currency verdicts are removed from checkout.
+Cases cover single/multiple items, repeated products, currency selection and empty carts.
+Checkout tool execution, returned items/address, shipping, confirmation, cart clearing and
+checkout-order persistence remain checked. Other existing service dependencies remain live;
+this is payment-independent checkout testing, not full dependency isolation. Missing checkout
+tool execution still fails; removing payment checks does not turn fabricated orders into passes.
+An empty cart may be rejected only with INVALID_ARGUMENT/FAILED_PRECONDITION; no order record
+is expected on rejection. A successful response must meet the normal checkout checks.
+
+Transfer the updated checkout package, `dataflow/services.py`, and `speed/multi-job.sh`.
+No native source adaptation changed, so existing native builds can be reused if fingerprints
+still match. Run `bash speed/run-checkout.sh` inside an existing SPEED allocation.
+Prior reports retain their previous scope and are not rewritten.
